@@ -13,20 +13,21 @@ def clean_data(path: str):
     df["Positions Played"] = df["Positions Played"].str.split(",")
 
     textspalten = [
-        'Known As', 
-        'Full Name', 
-        'Positions Played', 
-        'Best Position', 
-        'Nationality', 
-        'Image Link', 
-        'Club Name', 
-        'Club Position', 
-        'Preferred Foot', 
-        'National Team Name', 
-        'National Team Image Link', 
-        'National Team Position', 
-        'Attacking Work Rate', 
-        'Defensive Work Rate'
+        "Known As", 
+        "Full Name", 
+        "Positions Played", 
+        "Best Position", 
+        "Nationality", 
+        "Image Link", 
+        "Club Name", 
+        "Club Position", 
+        "Preferred Foot", 
+        "National Team Name", 
+        "National Team Image Link", 
+        "National Team Position", 
+        "Attacking Work Rate", 
+        "Defensive Work Rate",
+        "On Loan"
         ]
 
     for col in df.columns:
@@ -37,7 +38,11 @@ def clean_data(path: str):
             df[col] = pd.to_numeric(df[col], errors="coerce")
 
     df.loc[df["Value(in Euro)"] < 0, "Value(in Euro)"] = 0
-    # TODO spalte "On Loan" wird noch nicht korrekt eingelesen
+    df.loc[df["Preferred Foot"] == "", "Preferred Foot"] = "Not Specified"
+    df.loc[df["National Team Name"] == "", "National Team Image Link"] = ""
+    df.loc[df["National Team Name"] == "", "National Team Name"] = "No National Team"
+    df.loc[df["National Team Position"] == "", "National Team Position"] = "No National Team"
+    df.loc[df["On Loan"] == "", "On Loan"] = "FALSE"
 
     return df
 
