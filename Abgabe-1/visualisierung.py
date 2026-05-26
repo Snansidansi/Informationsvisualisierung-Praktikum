@@ -1,5 +1,7 @@
 import plotly.express as px
 import pandas as pd
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 from dash import html, dcc
 
 def show_sorted_alphabetical_list_with_image_link(data_frame, data_column_name, image_col_name):
@@ -61,4 +63,32 @@ def show_value_histogram(data_column, type="linear", title=None):
     )
     fig.update_yaxes(type=type)
     fig.update_xaxes(categoryorder="total ascending")
+    return dcc.Graph(figure=fig)
+
+def show_average_wage_per_age(data):
+    df_avg = data.groupby("Age")["Wage(in Euro)"].mean().reset_index()
+
+    fig = px.bar(
+        df_avg,
+        x="Age",
+        y="Wage(in Euro)",
+        title="Durchschnittsgehalt pro Alter",
+        labels={"Age": "Age", "Wage(in Euro)": "Average Wage (in Euro)"},
+        template="plotly_white",
+    )
+
+    return dcc.Graph(figure=fig)
+
+def show_age_wage_scatter(data):
+    fig = px.scatter(
+        data,
+        x="Age",
+        y="Wage(in Euro)",
+        title="Gehaltsverteilung nach Alter",
+        labels={"Age": "Age", "Wage(in Euro)": "Wage(in Euro)"},
+        template="plotly_white",
+    )
+
+    fig.update_traces(marker_color="royalblue")
+
     return dcc.Graph(figure=fig)

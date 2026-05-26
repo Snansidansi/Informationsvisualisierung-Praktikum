@@ -1,19 +1,20 @@
 from dash import Dash, dcc, html, Input, Output, callback
-import pandas as pd
 import sys
 import datenbereinigung
-from visualisierung import show_sorted_alphabetical_list_with_image_link, show_pie_chart, show_value_histogram
+from visualisierung import show_average_wage_per_age, show_sorted_alphabetical_list_with_image_link, show_pie_chart, show_value_histogram, show_age_wage_scatter
 
 data = None
 
 def render_attribute_selection():
     excluded_attributes = ['Image Link', 'National Team Image Link']
     selectable_attributes = [col for col in data.columns if col not in excluded_attributes]
+    selectable_attributes.extend(["Age and Wage(in Euro)", "Age and Overall"])
+
     return [
         html.Label("Attribut:"),
         dcc.Dropdown(
             options=selectable_attributes,
-            value="On Loan",
+            value="Age and Wage(in Euro)",
             id="attributs"
         ),
         html.Div([
@@ -87,6 +88,11 @@ def update_output(selected_attribute, selected_nationality, selected_club):
             visualization.children.append(team_list_component)
     elif selected_attribute in ["Positions Played", "Best Position", "Club Name"]:
         visualization = show_value_histogram(filtered_data[selected_attribute].explode(), type="linear")
+    elif selected_attribute == "Age and Wage(in Euro)":
+        visualization = html.Div([
+            show_age_wage_scatter(filtered_data),
+            show_average_wage_per_age(filtered_data)
+            ])
     else:
         visualization = html.Div([
             show_value_histogram(filtered_data[selected_attribute], type="linear"),
