@@ -89,11 +89,14 @@ def update_output(selected_attribute, selected_nationality, selected_club):
     elif selected_attribute in ["Positions Played", "Best Position", "Club Name"]:
         visualization = show_value_histogram(filtered_data[selected_attribute].explode(), type="linear")
     elif selected_attribute == "Age and Wage(in Euro)":
+        filtered_data = filtered_data.dropna(subset=['Age', 'Wage(in Euro)'])
+        filtered_data = filtered_data[filtered_data['Wage(in Euro)'] > 0]
         visualization = html.Div([
             show_age_wage_scatter(filtered_data),
             show_average_wage_per_age(filtered_data)
             ])
     elif selected_attribute == "Age and Overall":
+        filtered_data = filtered_data.dropna(subset=['Age', 'Overall'])
         visualization = html.Div([
             show_age_overall_scatter(filtered_data),
             show_average_overall_per_age(filtered_data)
