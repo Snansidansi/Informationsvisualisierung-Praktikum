@@ -37,7 +37,9 @@ def clean_data(path: str):
             df[col] = df[col].replace("-", np.nan)
             df[col] = pd.to_numeric(df[col], errors="coerce")
 
-    df.loc[df["Value(in Euro)"] < 0, "Value(in Euro)"] = 0
+    df.loc[df["Value(in Euro)"] <= 0, "Value(in Euro)"] = np.nan
+    df.loc[df["Wage(in Euro)"] <= 0, "Wage(in Euro)"] = np.nan
+
     df.loc[df["Preferred Foot"] == "", "Preferred Foot"] = "Not Specified"
     df.loc[df["National Team Name"] == "", "National Team Image Link"] = ""
     df.loc[df["National Team Name"] == "", "National Team Name"] = "No National Team"

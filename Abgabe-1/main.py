@@ -53,7 +53,7 @@ def update_output(selected_attribute, selected_nationality, selected_club):
         visualization = show_sorted_alphabetical_list_with_image_link(filtered_data, selected_attribute, image_col_name="Image Link")
     elif selected_attribute == "Value(in Euro)":
         data_column = filtered_data[selected_attribute]
-        data_without_null = data_column[data_column > 0]
+        data_without_null = data_column.dropna()
         visualization = html.Div([
             show_value_histogram(data_without_null, type="log"),
             show_value_histogram(data_without_null, type="linear")
@@ -90,7 +90,6 @@ def update_output(selected_attribute, selected_nationality, selected_club):
         visualization = show_value_histogram(filtered_data[selected_attribute].explode(), type="linear")
     elif selected_attribute == "Age and Wage(in Euro)":
         filtered_data = filtered_data.dropna(subset=['Age', 'Wage(in Euro)'])
-        filtered_data = filtered_data[filtered_data['Wage(in Euro)'] > 0]
         visualization = html.Div([
             show_age_wage_scatter(filtered_data),
             show_average_wage_per_age(filtered_data)
