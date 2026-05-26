@@ -92,3 +92,27 @@ def show_age_wage_scatter(data):
     fig.update_traces(marker_color="royalblue")
 
     return dcc.Graph(figure=fig)
+
+def show_average_overall_per_age(data):
+    df_avg = data.groupby("Age")["Overall"].mean().reset_index()
+    fig = px.bar(
+        df_avg,
+        x="Age",
+        y="Overall",
+        title="Durchschnittliches Overall pro Alter",
+        labels={"Age": "Age", "Overall": "Average Overall"},
+        template="plotly_white",
+    )
+    return dcc.Graph(figure=fig)
+
+def show_age_overall_scatter(data):
+    fig = px.scatter(
+        data,
+        x="Age",
+        y="Overall",
+        title="Overall-Verteilung nach Alter",
+        labels={"Age": "Age", "Overall": "Overall"},
+        template="plotly_white",
+    )
+    fig.update_traces(marker_color="royalblue")
+    return dcc.Graph(figure=fig)

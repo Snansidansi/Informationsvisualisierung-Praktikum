@@ -1,7 +1,7 @@
 from dash import Dash, dcc, html, Input, Output, callback
 import sys
 import datenbereinigung
-from visualisierung import show_average_wage_per_age, show_sorted_alphabetical_list_with_image_link, show_pie_chart, show_value_histogram, show_age_wage_scatter
+from visualisierung import show_age_overall_scatter, show_average_overall_per_age, show_average_wage_per_age, show_sorted_alphabetical_list_with_image_link, show_pie_chart, show_value_histogram, show_age_wage_scatter
 
 data = None
 
@@ -92,6 +92,11 @@ def update_output(selected_attribute, selected_nationality, selected_club):
         visualization = html.Div([
             show_age_wage_scatter(filtered_data),
             show_average_wage_per_age(filtered_data)
+            ])
+    elif selected_attribute == "Age and Overall":
+        visualization = html.Div([
+            show_age_overall_scatter(filtered_data),
+            show_average_overall_per_age(filtered_data)
             ])
     else:
         visualization = html.Div([
