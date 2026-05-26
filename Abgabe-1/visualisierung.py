@@ -116,3 +116,70 @@ def show_age_overall_scatter(data):
     )
     fig.update_traces(marker_color="royalblue")
     return dcc.Graph(figure=fig)
+
+def show_comparison_table(data_frame, index1, index2):
+    try:
+        row1 = data_frame.iloc[index1]
+        row2 = data_frame.iloc[index2]
+    except IndexError:
+        return html.Div("Index außerhalb des Bereichs", style={"color": "red"})
+
+    header = html.Thead(html.Tr([
+        html.Th("Attribut"),
+        html.Th(f"Zeile {index1}"),
+        html.Th(f"Zeile {index2}")
+    ]))
+
+    rows = []
+    for col in data_frame.columns:
+        val1 = row1[col]
+        val2 = row2[col]
+
+        color1 = None
+        color2 = None
+
+        try:
+            num1 = float(val1) if pd.notna(val1) else None
+        except (ValueError, TypeError):
+            num1 = None
+        try:
+            num2 = float(val2) if pd.notna(val2) else None
+        except (ValueError, TypeError):
+            num2 = None
+
+        if num1 is not None and num2 is not None:
+            if num1 < num2:
+                color1 = "red"
+                color2 = "green"
+            elif num1 > num2:
+                color1 = "green"
+                color2 = "red"
+        else:
+            if str(val1) != str(val2):
+                color1 = "orange"
+                color2 = "orange"
+
+        cell1 = html.Td(str(val1), style={"background-color": color1} if color1 else {})
+        cell2 = html.Td(str(val2), style={"background-color": color2} if color2 else {})
+        row = html.Tr([
+            html.Td(col, style={"fontWeight": "bold"}),
+            cell1,
+            cell2
+        ])
+        rows.append(row)
+
+    table = html.Table([header, html.Tbody(rows)], style={"borderCollapse": "collapse", "width": "100%"})
+
+    legend = html.Div([
+        html.Span("Legende: ", style={"fontWeight": "bold"}),
+        html.Span(" ", style={"display": "inline-block", "width": "12px", "height": "12px", "backgroundColor": "red", "marginRight": "4px"}),
+        " Kleinerer Wert  ",
+        html.Span(" ", style={"display": "inline-block", "width": "12px", "height": "12px", "backgroundColor": "green", "marginRight": "4px"}),
+        " Größerer Wert  ",
+        html.Span(" ", style={"display": "inline-block", "width": "12px", "height": "12px", "backgroundColor": "orange", "marginRight": "4px"}),
+        " Unterschiedlich (nicht numerisch)  ",
+        html.Span(" ", style={"display": "inline-block", "width": "12px", "height": "12px", "backgroundColor": "transparent", "border": "1px solid black", "marginRight": "4px"}),
+        " Gleiche Werte",
+    ], style={"marginBottom": "10px"})
+
+    return html.Div([legend, table])

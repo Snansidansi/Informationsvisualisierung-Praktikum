@@ -1,7 +1,7 @@
 from dash import Dash, dcc, html, Input, Output, callback
 import sys
 import datenbereinigung
-from visualisierung import show_age_overall_scatter, show_average_overall_per_age, show_average_wage_per_age, show_sorted_alphabetical_list_with_image_link, show_pie_chart, show_value_histogram, show_age_wage_scatter
+from visualisierung import show_age_overall_scatter, show_average_overall_per_age, show_average_wage_per_age, show_sorted_alphabetical_list_with_image_link, show_pie_chart, show_value_histogram, show_age_wage_scatter, show_comparison_table
 
 data = None
 
@@ -108,6 +108,23 @@ def update_output(selected_attribute, selected_nationality, selected_club):
 
     return [text, visualization]
 
+@callback(
+    Output("comparison-output", "children"),
+    Input("compare-index1", "value"),
+    Input("compare-index2", "value")
+)
+def update_comparison(index1, index2):
+    if index1 is None or index2 is None:
+        return html.Div("Bitte gültige Indizes eingeben.")
+    try:
+        idx1 = int(index1)
+        idx2 = int(index2)
+    except (ValueError, TypeError):
+        return html.Div("Ungültige Eingabe.")
+    if idx1 < 0 or idx1 >= len(data) or idx2 < 0 or idx2 >= len(data):
+        return html.Div("Index außerhalb des Bereichs.")
+    return show_comparison_table(data, idx1, idx2)
+
 if __name__ == "__main__":
     try:
         csvPath = sys.argv[1]
@@ -123,7 +140,15 @@ if __name__ == "__main__":
     app = Dash()
     app.layout = html.Div([
         html.H1(children="Abgabe 1"),
-        *render_attribute_selection()
+        *render_attribute_selection(),
+        html.H2("Vergleich"),
+        html.Label("Zeile 1 Index:"),
+        dcc.Input(id="compare-index1", type="number", min=0, max=len(data)-1, step=1, value=0),
+        html.Br(),
+        html.Label("Zeile 2 Index:"),
+        dcc.Input(id="compare-index2", type="number", min=0, max=len(data)-1, step=1, value=min(1, len(data)-1)),
+        html.Br(),
+        html.Div(id="comparison-output")
     ])
 
     app.run(debug=True)
