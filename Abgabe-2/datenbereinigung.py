@@ -7,6 +7,3 @@ def clean_data(path: str, dump: bool = False) -> pd.DataFrame:
     if dump:
         df.to_csv("cleaned.csv", index=False)
     return df
-
-if __name__ == "__main__":
-    clean_data("wein.csv", True)
