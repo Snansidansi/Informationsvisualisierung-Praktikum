@@ -1,9 +1,13 @@
 import html
 import sys
-import plotly.io as pio
+import lineare_regression
+import dash_bootstrap_components as dbc
+from dash import dcc
 
 from datenbereinigung import clean_data
-from dash import Dash
+from dash import Dash, html
+
+app = Dash(__name__, external_stylesheets=[dbc.themes.DARKLY])
 
 if __name__ == "__main__":
     try:
@@ -14,10 +18,10 @@ if __name__ == "__main__":
 
     cleaned_data = clean_data(csvPath, True)
 
-    app = Dash()
-    pio.default = "seaborn"
     app.layout = html.Div([
-        html.H1(children = "Abgabe 2")
+        html.H1(children = "Abgabe 2"),
+        dcc.Store(id='daten-speicher', data=cleaned_data.to_dict('records')),
+        lineare_regression.doRegression(cleaned_data)
     ])
 
     app.run(debug=True)
