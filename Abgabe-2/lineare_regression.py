@@ -12,7 +12,12 @@ def doRegression(df: pd.DataFrame):
 
     return html.Div([
         html.Label("Attribut für die y-Achse:"),
-        dcc.Dropdown(id="y-achse", options=options, value=initial_value),
+        dcc.Dropdown(
+            id="y-achse", 
+            options=options, 
+            value=initial_value,
+            style={'backgroundColor': '#333', 'color': '#000'}
+        ),
 
         html.Div(id="summary-diagram-container", style={'paddingBottom': '30px'}),
         html.Div(id="diagrams")
