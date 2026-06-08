@@ -23,6 +23,7 @@ def doRegression(df: pd.DataFrame):
         html.Div(id="diagrams")
     ])
 
+
 @callback(
     Output("diagrams", "children"),
     Output("summary-diagram-container", "children"),
@@ -37,39 +38,69 @@ def update_diagrams(y_attribute: str, stored_data):
     
     childrenWithR2 = []
     r2_values = []
+    pearson_values = []
+    rmse_values = []
     
     for x_attribute in df.columns:
         if x_attribute == y_attribute:
             continue
 
-        diagram, r2_value = getLinearRegressionDiagram(df, x_attribute, y_attribute)
+        diagram, r2_value, pearson, rmse = getLinearRegressionDiagram(df, x_attribute, y_attribute)
         childrenWithR2.append((diagram, r2_value)) 
         
         r2_values.append({
             'Attribut': x_attribute,
             'R2': r2_value
         })
+        pearson_values.append({
+            'Attribut': x_attribute,
+            'Pearson-r': pearson
+        })
+        rmse_values.append({
+            'Attribut': x_attribute,
+            'RMSE': rmse
+        })
 
     childrenWithR2 = sorted(childrenWithR2, key=lambda item: item[1], reverse=True)
     children = [item[0] for item in childrenWithR2]
 
-    if r2_values:
-        df_r2 = pd.DataFrame(r2_values)
-        df_r2 = df_r2.sort_values(by="R2", ascending=False)
-        
-        summary_fig = px.bar(
-            df_r2, 
-            x='Attribut', 
-            y='R2',
-            title="<b>R²-Score der paarweisen Attribute</b>",
-            labels={'R2': 'Bestimmtheitsmaß (R²-Score)', 'Attribut': 'X-Attribut'},
-            template='plotly_dark'
-        )
-        summary_graph = dcc.Graph(figure=summary_fig)
-    else:
-        summary_graph = html.Div("Keine numerischen Paare gefunden.")
+    summary_fig_r2 = _create_summary_bar_chart(r2_values, 'R2', 'Bestimmtheitsmaß (R²-Score)')
+    summary_fig_pearson = _create_summary_bar_chart(pearson_values, 'Pearson-r', 'Pearson-Korrelationskoeffizient')
+    summary_fig_rmse = _create_summary_bar_chart(rmse_values, 'RMSE', 'Root Mean Squared Error (RMSE)')
+    
+    summary_graph_r2 = dcc.Graph(figure=summary_fig_r2)
+    summary_graph_pearson = dcc.Graph(figure=summary_fig_pearson)
+    summary_graph_rmse = dcc.Graph(figure=summary_fig_rmse)
+    
+    summary_graph = html.Div([
+        summary_graph_r2,
+        html.Br(),
+        summary_graph_pearson,
+        html.Br(),
+        summary_graph_rmse
+    ])
         
     return children, summary_graph
+
+
+def _create_summary_bar_chart(data, value_column, y_label):
+    if not data:
+        return px.bar(title="Keine Daten verfügbar")
+    
+    df = pd.DataFrame(data)
+    df = df.sort_values(by=value_column, ascending=False)
+    
+    fig = px.bar(
+        df, 
+        x='Attribut', 
+        y=value_column,
+        title=f"<b>{y_label} der paarweisen Attribute</b>",
+        labels={value_column: y_label, 'Attribut': 'X-Attribut'},
+        template='plotly_dark'
+    )
+    
+    return fig
+
 
 def _add_residuals_to_plot(df, x_col, y_col, y_pred):
     residuals = df[y_col] - y_pred
@@ -131,4 +162,4 @@ def getLinearRegressionDiagram(df: pd.DataFrame, x_attribute: str, y_attribute: 
         f"<sup>Pearson-r: {r_corr:.3f} | R²-Note: {r2:.3f} | Durchschnittlicher Fehler (RMSE): {rmse:.3f}</sup>"
     )
 
-    return dcc.Graph(figure=fig), r2
+    return dcc.Graph(figure=fig), r2, r_corr, rmse
