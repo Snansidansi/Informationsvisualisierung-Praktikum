@@ -2,9 +2,10 @@ import html
 import sys
 import lineare_regression
 import dash_bootstrap_components as dbc
-from dash import dcc, html, callback, Input, Output
+from dash import dcc, html
 
 from datenbereinigung import clean_data
+from clustering import render_full_clustering
 from dash import Dash
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.DARKLY])
@@ -23,7 +24,7 @@ if __name__ == "__main__":
         dcc.Store(id="data-store", data=cleaned_data.to_dict("records")),
         dcc.Tabs([
             dcc.Tab(label="Lineare Regression", children=html.Div(lineare_regression.doRegression(cleaned_data), style={'padding': '20px'})),
-            dcc.Tab(label="K-Means Clustering", children=html.Div(style={'padding': '20px'}))
+            dcc.Tab(label="K-Means Clustering", children=html.Div(render_full_clustering(cleaned_data) ,style={'padding': '20px'}))
         ], style={'padding': '20px'})
     ], style={'padding': '20px'})
 
