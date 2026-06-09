@@ -99,11 +99,15 @@ def generate_cluster_scatter_component(df_clean):
         for cluster_id in range(k):
             cluster_silhouette = full_silhouette[cluster_labels == cluster_id]
             cluster_wine_idxs = plot_df.loc[cluster_labels == cluster_id, "Wine_ID"].to_numpy()
+            cluster_pca1 = plot_df.loc[cluster_labels == cluster_id, "PCA1"].to_numpy()
+            cluster_pca2 = plot_df.loc[cluster_labels == cluster_id, "PCA2"].to_numpy()
 
             sort_idx = np.argsort(cluster_silhouette)
 
             cluster_silhouette = cluster_silhouette[sort_idx]
             cluster_wine_idxs = cluster_wine_idxs[sort_idx]
+            cluster_pca1 = cluster_pca1[sort_idx]
+            cluster_pca2 = cluster_pca2[sort_idx]
 
             color = colors[cluster_id % len(colors)]
 
@@ -120,13 +124,13 @@ def generate_cluster_scatter_component(df_clean):
                     width=1.0,
                     customdata=np.column_stack([
                         cluster_wine_idxs,
-                        np.full(cluster_silhouette.shape[0], cluster_id),
-                        cluster_silhouette,
+                        cluster_pca1,
+                        cluster_pca2,
                     ]),
                     hovertemplate=(
                         "<b>Wein Index: %{customdata[0]}</b><br>"
-                        "Cluster: %{customdata[1]}<br>"
-                        "Silhouette: %{customdata[2]:.3f}"
+                        "PCA1: %{customdata[1]:.2f}<br>"
+                        "PCA2: %{customdata[2]:.2f}"
                         "<extra></extra>"
                     ),
                     showlegend=False,
