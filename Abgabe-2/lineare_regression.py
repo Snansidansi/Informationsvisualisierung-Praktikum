@@ -12,7 +12,9 @@ def create_pairwise_r2_heatmap(df):
     matrix = np.full((n, n), np.nan)
     for i, col_x in enumerate(columns):
         for j, col_y in enumerate(columns):
-            if i == j:
+            if i <= j:
+                # leave diagonal and upper triangle empty
+                matrix[i, j] = np.nan
                 continue
             sub = df[[col_x, col_y]].dropna()
             if len(sub) < 2:
