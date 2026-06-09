@@ -63,7 +63,7 @@ def create_pairwise_r2_bar_chart(df):
         labels={"R2": "R²"},
         template="plotly_dark"
     )
-    fig.update_layout(title_font=dict(size=16), xaxis_tickangle=-80)
+    fig.update_layout(title_font=dict(size=16), xaxis_tickangle=-80, height=700)
     return dcc.Graph(figure=fig)
 
 def doRegression(df: pd.DataFrame):
