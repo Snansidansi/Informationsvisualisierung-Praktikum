@@ -17,7 +17,7 @@ if __name__ == "__main__":
         print("Bitte den Dateipfad zu der csv command line argument übergeben")
         exit(1)
 
-    cleaned_data = clean_data(csvPath, True)
+    cleaned_data = clean_data(csvPath)
 
     app.layout = html.Div([
         html.H1(children="Abgabe 2 - Regression und Clustering", style={'marginBottom': '30px'}),
