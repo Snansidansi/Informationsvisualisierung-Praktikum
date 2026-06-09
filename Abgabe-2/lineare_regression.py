@@ -6,21 +6,83 @@ from dash import dcc, html, callback, Input, Output, State
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score, mean_squared_error
 
+def create_pairwise_r2_heatmap(df):
+    columns = list(df.columns)
+    n = len(columns)
+    matrix = np.full((n, n), np.nan)
+    for i, col_x in enumerate(columns):
+        for j, col_y in enumerate(columns):
+            if i == j:
+                matrix[i, j] = 1.0
+            else:
+                sub = df[[col_x, col_y]].dropna()
+                if len(sub) < 2:
+                    matrix[i, j] = np.nan
+                else:
+                    corr = sub[col_x].corr(sub[col_y])
+                    matrix[i, j] = corr ** 2
+    fig = px.imshow(
+        matrix,
+        x=columns,
+        y=columns,
+        color_continuous_scale="RdBu_r",
+        title="Alle Paare R² (Heatmap)",
+        labels=dict(x="Attribut", y="Attribut", color="R²"),
+        template="plotly_dark",
+    )
+    fig.update_layout(title_font=dict(size=16))
+    return dcc.Graph(figure=fig)
+
+def create_pairwise_r2_bar_chart(df):
+    columns = list(df.columns)
+    pairs_r2 = []
+    for i in range(len(columns)):
+        for j in range(i + 1, len(columns)):
+            col_x = columns[i]
+            col_y = columns[j]
+            sub = df[[col_x, col_y]].dropna()
+            if len(sub) < 2:
+                continue
+            corr = sub[col_x].corr(sub[col_y])
+            if np.isnan(corr):
+                continue
+            r2 = corr ** 2
+            pairs_r2.append({"Paar": f"{col_x} & {col_y}", "R2": r2})
+    df_pairs = pd.DataFrame(pairs_r2)
+    df_pairs = df_pairs.sort_values("R2", ascending=False)
+    fig = px.bar(
+        df_pairs,
+        x="Paar",
+        y="R2",
+        title="Alle Paare R² (Balkendiagram)",
+        labels={"R2": "R²"},
+        template="plotly_dark"
+    )
+    fig.update_layout(title_font=dict(size=16), xaxis_tickangle=-80)
+    return dcc.Graph(figure=fig)
+
 def doRegression(df: pd.DataFrame):
-    options = [{'label': col, 'value': col} for col in df.columns]
-    initial_value = options[0]['value'] if options else None
+    options = [{"label": col, "value": col} for col in df.columns]
+    initial_value = options[0]["value"] if options else None
 
     return html.Div([
+        html.Details([
+            html.Summary("Heatmap und Balkendiagramm aller Attributpaare (R²)"),
+            create_pairwise_r2_heatmap(df),
+            html.Div(style={"height": "20px"}),
+            create_pairwise_r2_bar_chart(df)
+        ], style={"paddingBottom": "20px"}),
+
         html.Label("Attribut für die y-Achse:"),
         dcc.Dropdown(
             id="y-achse", 
             options=options, 
             value=initial_value,
-            style={'backgroundColor': '#333', 'color': '#000'}
+            style={"backgroundColor": "#333", "color": "#000"}
         ),
 
-        html.Div(id="summary-diagram-container", style={'paddingBottom': '30px'}),
-        html.Div(id="diagrams")
+        html.Div(id="summary-diagram-container", style={"paddingBottom": "30px"}),
+        html.Div(id="diagrams"),
     ])
 
 
@@ -49,24 +111,24 @@ def update_diagrams(y_attribute: str, stored_data):
         childrenWithR2.append((diagram, r2_value)) 
         
         r2_values.append({
-            'Attribut': x_attribute,
-            'R2': r2_value
+            "Attribut": x_attribute,
+            "R2": r2_value
         })
         pearson_values.append({
-            'Attribut': x_attribute,
-            'Pearson-r': pearson
+            "Attribut": x_attribute,
+            "Pearson-r": pearson
         })
         rmse_values.append({
-            'Attribut': x_attribute,
-            'RMSE': rmse
+            "Attribut": x_attribute,
+            "RMSE": rmse
         })
 
     childrenWithR2 = sorted(childrenWithR2, key=lambda item: item[1], reverse=True)
     children = [item[0] for item in childrenWithR2]
 
-    summary_fig_r2 = _create_summary_bar_chart(r2_values, 'R2', 'Bestimmtheitsmaß (R²-Score)')
-    summary_fig_pearson = _create_summary_bar_chart(pearson_values, 'Pearson-r', 'Pearson-Korrelationskoeffizient')
-    summary_fig_rmse = _create_summary_bar_chart(rmse_values, 'RMSE', 'Root Mean Squared Error (RMSE)')
+    summary_fig_r2 = _create_summary_bar_chart(r2_values, "R2", "Bestimmtheitsmaß (R²-Score)")
+    summary_fig_pearson = _create_summary_bar_chart(pearson_values, "Pearson-r", "Pearson-Korrelationskoeffizient")
+    summary_fig_rmse = _create_summary_bar_chart(rmse_values, "RMSE", "Root Mean Squared Error (RMSE)")
     
     summary_graph_r2 = dcc.Graph(figure=summary_fig_r2)
     summary_graph_pearson = dcc.Graph(figure=summary_fig_pearson)
@@ -92,11 +154,11 @@ def _create_summary_bar_chart(data, value_column, y_label):
     
     fig = px.bar(
         df, 
-        x='Attribut', 
+        x="Attribut", 
         y=value_column,
         title=f"<b>{y_label} der paarweisen Attribute</b>",
-        labels={value_column: y_label, 'Attribut': 'X-Attribut'},
-        template='plotly_dark'
+        labels={value_column: y_label, "Attribut": "X-Attribut"},
+        template="plotly_dark"
     )
     
     return fig
