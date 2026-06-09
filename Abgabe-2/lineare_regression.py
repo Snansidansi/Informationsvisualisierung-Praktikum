@@ -13,14 +13,16 @@ def create_pairwise_r2_heatmap(df):
     for i, col_x in enumerate(columns):
         for j, col_y in enumerate(columns):
             if i == j:
-                matrix[i, j] = 1.0
+                continue
+            sub = df[[col_x, col_y]].dropna()
+            if len(sub) < 2:
+                matrix[i, j] = np.nan
             else:
-                sub = df[[col_x, col_y]].dropna()
-                if len(sub) < 2:
-                    matrix[i, j] = np.nan
-                else:
-                    corr = sub[col_x].corr(sub[col_y])
-                    matrix[i, j] = corr ** 2
+                corr = sub[col_x].corr(sub[col_y])
+                matrix[i, j] = corr ** 2
+    maxR2 = np.nanmax(matrix)
+    if np.isnan(maxR2):
+        maxR2 = 1.0
     fig = px.imshow(
         matrix,
         x=columns,
@@ -29,6 +31,9 @@ def create_pairwise_r2_heatmap(df):
         title="Alle Paare R² (Heatmap)",
         labels=dict(x="Attribut", y="Attribut", color="R²"),
         template="plotly_dark",
+        zmin=0,
+        zmax=maxR2,
+        aspect="auto",
     )
     fig.update_layout(title_font=dict(size=16))
     return dcc.Graph(figure=fig)
