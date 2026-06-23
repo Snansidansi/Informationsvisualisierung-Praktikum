@@ -10,7 +10,7 @@ Dabei sind einige Attribute irrelevant und könnten zu falschen Rückschlüssen 
 
 Beispielsweise könnte es eine Korrelation zwischen dem `PassangerId` und dem Überleben geben, welche so aussieht, dass Passagiere mit einer geraden `PassangerId` häufiger überlebt haben. Hier lässt sich allerdings eine Kausalität fast schon ausschließen. Eine Kausalität wäre hier nur möglich, wenn z.B. alle geraden `PassengerId` sich in einem sichereren Teil des Schiffes befinden. Dafür gibt es jedoch schon ein Attribut.
 
-Ähnliches lässt sich für Attribute wie `Ticked` und `Fare` vermuten
+Ähnliches lässt sich für Attribute wie `Ticket` und `Fare` vermuten
 
 ### Datenqualität
 
