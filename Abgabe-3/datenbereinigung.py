@@ -9,7 +9,7 @@ def clean_data(path: str, dump: bool = False) -> pd.DataFrame:
 
     df["Pclass"] = df["Pclass"].apply(pd.to_numeric, errors="coerce")
 
-    df = df.drop(columns="Name") # nicht relevant
+    df = df.drop(columns="Name")
 
     df["Sex"] = df["Sex"].astype(pd.api.types.CategoricalDtype(["female", "male"]))
 
@@ -17,11 +17,11 @@ def clean_data(path: str, dump: bool = False) -> pd.DataFrame:
     df["Parch"] = df["Parch"].apply(pd.to_numeric, errors="coerce")
     df["SibSp"] = df["SibSp"].apply(pd.to_numeric, errors="coerce")
 
-    df = df.drop(columns="Ticket") # nicht relevant
+    df = df.drop(columns="Ticket")
 
     df["Fare"] = df["Fare"].apply(pd.to_numeric, errors="coerce")
 
-    df = df.drop(columns="Cabin") # extrem unvollständig
+    df = df.drop(columns="Cabin")
 
     df["Embarked"] = df["Embarked"].replace({
         "C":"Cherbourg",

@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.base import clone
-from sklearn.model_selection import KFold, cross_validate
+from sklearn.model_selection import KFold, cross_validate, cross_val_predict
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
@@ -12,17 +12,20 @@ from sklearn.preprocessing import StandardScaler
 
 models = {
     "Logistische Regression": make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000, solver="liblinear")),
-    "Decision Tree": DecisionTreeClassifier(),
+    "Decision Tree": DecisionTreeClassifier(random_state=1),
     "K-Nearest Neighbor mit k = 3": make_pipeline(StandardScaler(), KNeighborsClassifier(n_neighbors=3)),
 }
 
-def train_10fold(df: pd.DataFrame, dump: bool = False) -> pd.DataFrame:
+def train_10fold(df: pd.DataFrame, dump: bool = False):
     X = df.drop(columns="Survived")
     y = df["Survived"]
     
-    kfold = KFold(n_splits=10)
+    kfold = KFold(n_splits=10, random_state=1, shuffle=True)
 
     rows = []
+    
+    predictions = {}
+    fitted_models = {}
 
     for name, model in models.items():
         scoring = {
@@ -41,11 +44,17 @@ def train_10fold(df: pd.DataFrame, dump: bool = False) -> pd.DataFrame:
             "Recall": kf["test_recall"].mean(),
             "F1": kf["test_f1"].mean(),
         })
+        
+        y_pred_cv = cross_val_predict(model, X, y, cv=kfold)
+        predictions[name] = y_pred_cv
+        
+        fitted_model = clone(model).fit(X, y)
+        fitted_models[name] = fitted_model
 
     results = pd.DataFrame(rows)
     if (dump):
         print(results)
-    return results
+    return results, predictions, fitted_models
 
 def train_bootstrap_632(df: pd.DataFrame, dump: bool = False) -> pd.DataFrame:
     X = df.drop(columns="Survived")
@@ -104,5 +113,5 @@ class Bootstrap:
 if __name__ == "__main__":
     from datenbereinigung import clean_data
     df = clean_data("Titanic.csv")
-    train_10fold(df, dump=True)
+    res_cv, preds_cv, models_cv = train_10fold(df, dump=True)
     train_bootstrap_632(df, dump=True)
