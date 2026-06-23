@@ -2,20 +2,20 @@
 
 ### Zweck der Daten
 
-Der Zweck der Daten liegt wahrscheinlich darin ein Muster aus verschiedenen Attributen (oder Attributkombinationen) zu finden, mit welchen sich darauf schließen lässt, ob eine Person auf der Titanic überlebt hat.
+Der Zweck des Datensatzes besteht darin, Muster aus verschiedenen Merkmalen zu finden. Damit soll vorhergesagt werden, ob ein Passagier das Unglück auf der Titanic überlebt hat oder nicht.
 
-### Attribute
+### Relevanz der Attribute
 
-Dabei sind einige Attribute irrelevant und könnten zu falschen Rückschlüssen führen und somit die Visualisierungen verzerren.
+Einige Spalten haben keinen logischen Zusammenhang mit den Überlebenschancen. Sie würden die Grafiken verzerren oder die Modelle verwirren. Deshalb wurden sie gelöscht:
 
-Beispielsweise könnte es eine Korrelation zwischen dem `PassangerId` und dem Überleben geben, welche so aussieht, dass Passagiere mit einer geraden `PassangerId` häufiger überlebt haben. Hier lässt sich allerdings eine Kausalität fast schon ausschließen. Eine Kausalität wäre hier nur möglich, wenn z.B. alle geraden `PassengerId` sich in einem sichereren Teil des Schiffes befinden. Dafür gibt es jedoch schon ein Attribut.
+- **PassengerId, Ticket, Name:** Diese Angaben sind für die Vorhersage unwichtig und wurden aus dem Datensatz entfernt.
+- **Cabin:** Diese Spalte ist extrem unvollständig (viele fehlende Werte) und wurde wegen der schlechten Datenqualität komplett gelöscht.
 
-Ähnliches lässt sich für Attribute wie `Ticket` und `Fare` vermuten
+### Datenqualität und Bereinigungsschritte
 
-### Datenqualität
+Um mit den Daten arbeiten zu können, wurden folgende Schritte durchgeführt:
 
-Weiterhin lässt sich zur Datenqualität sagen, das viele wichtige Informationen Fehlen.
-
-Bei dem Attribut `Alter` fehelen einige Werte. Dies ist Problematisch, da Kinder bei Rettungen udn Evakuierungen oft Vorrang haben. Hier wäre es eventuell über einen Titel der Person (z.b. Mr., Mrs, ...) darauf zu schließen, ob es sicht um ein Kind handelt oder nicht.
-
-Auch bei dem Attribut `Fare` gibt es große Probleme, da hier über die Hälfte der Daten fehlen.
+- **Zahlenformate reparieren:** Die Spalten für ID, Überleben, Klasse, Alter, Geschwister, Eltern/Kinder und Ticketpreis wurden sauber in Zahlen umgewandelt. Fehlerhafte Text-Einträge wurden dabei automatisch als "leer" (`NaN`) markiert.
+- **Namen der Häfen ausschreiben:** Die abgekürzten Einstiegshäfen wurden durch die echten Namen ersetzt (_Cherbourg_, _Queenstown_, _Southampton_), damit sie lesbar sind.
+- **Text in Zahlen umwandeln (One-Hot-Encoding):** Da Computer nicht direkt mit Text wie "male" oder "female" rechnen können, wurden das Geschlecht und die Häfen in Ja/Nein-Spalten (0 und 1) aufgeteilt. Dabei wurde jeweils eine Spalte weggelassen, um doppelte Informationen zu vermeiden.
+- **Umgang mit leeren Feldern:** Nach allen Umwandlungen wurden alle Zeilen gelöscht, in denen noch wichtige Informationen (wie das Alter oder der Ticketpreis) gefehlt haben. Das sorgt für einen vollständig ausgefüllten Datensatz am Ende.
