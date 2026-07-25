@@ -24,7 +24,7 @@ requests==2.34.2
 retrying==1.4.2
 scikit-learn==1.9.0
 scipy==1.17.1
-setuptools==82.0.1
+setuptools==83.0.0
 six==1.17.0
 statsmodels==0.14.6
 threadpoolctl==3.6.0
